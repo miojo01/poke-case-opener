@@ -266,3 +266,63 @@
 @keyframes piscar { 50% { opacity: 0.5; } }
 @keyframes tremer { 0% {transform: rotate(-2deg);} 50% {transform: rotate(2deg);} 100% {transform: rotate(-2deg);} }
 @keyframes aparecer { from {opacity: 0; transform: scale(0.5);} to {opacity: 1; transform: scale(1);} }
+
+@media screen and (max-height: 800px), screen and (max-width: 1400px) {
+    
+    /* 1. Diminuir o Cabeçalho */
+    .game-header {
+        padding: 10px 20px;
+        margin-bottom: 10px;
+    }
+    .brand-title {
+        font-size: 1.5rem; /* Título menor */
+    }
+    .stat-item {
+        font-size: 1rem;
+        padding: 8px 15px;
+    }
+
+    /* 2. Diminuir a Pokébola e o Botão de Abrir */
+    .ball-image {
+        width: 120px; /* Era maior antes */
+        height: auto;
+    }
+    .cyber-button {
+        padding: 12px 40px;
+        font-size: 1rem;
+        margin-top: 10px;
+    }
+
+    /* 3. Arrumar o Texto de Probabilidades (que estava vazando) */
+    .probs-info {
+        font-size: 0.7rem;
+        margin-top: 5px;
+        margin-bottom: 15px; /* Empurra os botões de baixo para longe */
+    }
+
+    /* 4. Diminuir os Botões de Escolha de Caixa */
+    .case-selector {
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .case-btn {
+        min-width: 140px;
+        padding: 10px;
+    }
+    .case-name {
+        font-size: 1rem;
+    }
+    .case-price {
+        font-size: 0.9rem;
+    }
+
+    /* 5. Ajustar a grade do inventário para caber mais itens */
+    .inventory-section {
+        margin-top: 10px;
+        padding-top: 10px;
+    }
+    .inventory-slot {
+        width: 60px;
+        height: 60px;
+    }
+}
