@@ -30,19 +30,19 @@ Este projeto precisa de dois terminais rodando simultaneamente (um para o site e
 ### Pré-requisitos
 Certifique-se de ter o [Node.js](https://nodejs.org/) instalado.
 
-### Passo 1: Instalação
+# Passo 1: Instalação
 Clone o repositório e instale as dependências:
 ```bash
 npm install
 
-### Passo 2: Iniciar o Backend (JSON Server)
+# Passo 2: Iniciar o Backend (JSON Server)
 Em um terminal, execute:
 ```bash
 npx json-server --watch db.json --port 3000
 ou
 npm run api
 
-### Passo 3: Iniciar o Frontend
+# Passo 3: Iniciar o Frontend
 Em outro terminal, execute:
 ```bash
 npm run dev

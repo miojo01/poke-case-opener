@@ -7,11 +7,19 @@ import './PokeGacha.css';
 
 function PokeGacha() {
     // --- ESTADOS ---
-    const [balance, setBalance] = useState(0);
-    const [myCollection, setMyCollection] = useState([]);
+    // Inicia lendo do LocalStorage ou usa o valor padrão (0 ou array vazio)
+    const [balance, setBalance] = useState(() => {
+        return parseInt(localStorage.getItem('poke_balance')) || 0;
+    });
+
+    const [myCollection, setMyCollection] = useState(() => {
+        return JSON.parse(localStorage.getItem('poke_collection')) || [];
+    });
     
-    // Novo Estado: Guarda o histórico de tudo que já foi pego (para a Pokédex não apagar)
-    const [pokedexHistory, setPokedexHistory] = useState([]); 
+    // Histórico da Pokédex (separado do inventário)
+    const [pokedexHistory, setPokedexHistory] = useState(() => {
+        return JSON.parse(localStorage.getItem('pokedex_history')) || [];
+    });
 
     const [wonPokemon, setWonPokemon] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -66,7 +74,8 @@ function PokeGacha() {
 
     const playSound = (fileName, volume = 0.5) => {
         try {
-            const audio = new Audio(`/${fileName}`);
+            // No GitHub Pages, precisamos garantir que o caminho comece com "./" ou o base path
+            const audio = new Audio(`./${fileName}`);
             audio.volume = volume;
             const playPromise = audio.play();
             if (playPromise !== undefined) {
@@ -77,43 +86,22 @@ function PokeGacha() {
         }
     };
 
-    // --- CARREGAMENTO INICIAL ---
-    useEffect(() => {
-        // 1. Carrega Saldo
-        fetch('http://localhost:3000/perfil').then(res => res.json()).then(data => setBalance(data.saldo));
-        
-        // 2. Carrega Coleção (Banco) e Sincroniza com Histórico (LocalStorage)
-        fetch('http://localhost:3000/colecao').then(res => res.json()).then(dbCollection => {
-            setMyCollection(dbCollection);
-
-            // Pega o que já estava salvo no navegador
-            const localHistory = JSON.parse(localStorage.getItem('pokedex_history') || '[]');
-            
-            // Pega o que veio do banco agora
-            const dbIds = dbCollection.map(item => item.pokedexId);
-
-            // Junta tudo sem repetir (Set remove duplicatas)
-            const uniqueIds = [...new Set([...localHistory, ...dbIds])];
-
-            setPokedexHistory(uniqueIds);
-            localStorage.setItem('pokedex_history', JSON.stringify(uniqueIds));
-        });
-    }, []);
+    // Função auxiliar para salvar tudo no LocalStorage
+    const saveToLocal = (key, value) => {
+        localStorage.setItem(key, JSON.stringify(value));
+    };
 
     const handleWork = async () => {
         if (isWorking) return;
         setIsWorking(true);
-        setTimeout(async () => {
+        setTimeout(() => {
             const newBalance = balance + 100;
             setBalance(newBalance);
-            await fetch('http://localhost:3000/perfil', {
-                method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ saldo: newBalance })
-            });
+            saveToLocal('poke_balance', newBalance); // Salva Local
             setIsWorking(false);
         }, 1000);
     };
 
-    // Vender remove da COLEÇÃO, mas NÃO remove do HISTÓRICO
     const handleSell = async (pokedexId, dbId, rarity) => {
         if (!sellMode) return;
         
@@ -122,12 +110,12 @@ function PokeGacha() {
         if (rarity === 'gold') price = 350;
 
         const newBalance = balance + price;
-        setBalance(newBalance); 
-        await fetch('http://localhost:3000/perfil', { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ saldo: newBalance }) });
-        await fetch(`http://localhost:3000/colecao/${dbId}`, { method: 'DELETE' });
-        
-        // Atualiza apenas o inventário visual
-        setMyCollection(prev => prev.filter(item => item.id !== dbId));
+        setBalance(newBalance);
+        saveToLocal('poke_balance', newBalance);
+
+        const newCollection = myCollection.filter(item => item.id !== dbId);
+        setMyCollection(newCollection);
+        saveToLocal('poke_collection', newCollection);
     };
 
     const getRandomRarity = (probs) => {
@@ -148,21 +136,25 @@ function PokeGacha() {
         
         playSound('clicksound.mp3');
         
+        // 1. Cobra o valor
         const newBalance = balance - currentCase.price;
         setBalance(newBalance);
-        await fetch('http://localhost:3000/perfil', { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ saldo: newBalance }) });
+        saveToLocal('poke_balance', newBalance);
 
         setIsLoading(true);
         setWonPokemon(null);
         setRouletteStyle({ transform: 'translateX(0px)', transition: 'none' });
 
+        // 2. Sorteia
         const winnerRarity = getRandomRarity(currentCase.probs);
         const winnerId = getRandomIdByRarity(winnerRarity);
         
         const apiRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${winnerId}`);
         const data = await apiRes.json();
         
+        // Cria objeto do Pokemon (Gera um ID aleatório único tipo timestamp)
         const winnerItemFull = { 
+            id: Date.now(), 
             pokedexId: data.id, 
             name: data.name, 
             image: data.sprites.other['official-artwork'].front_default, 
@@ -171,6 +163,7 @@ function PokeGacha() {
 
         const winnerItemSprite = { ...winnerItemFull, image: data.sprites.front_default };
 
+        // 3. Monta Roleta
         const WINNER_INDEX = 70;
         const TOTAL_ITEMS = 80;
         const fakeItems = [];
@@ -189,11 +182,7 @@ function PokeGacha() {
         }
         setRouletteItems(fakeItems);
 
-        const saveRes = await fetch('http://localhost:3000/colecao', {
-            method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(winnerItemFull)
-        });
-        const savedItem = await saveRes.json();
-
+        // 4. Animação
         setTimeout(() => {
             setIsSpinning(true);
             playSound('openingsound1.mp3', 1);
@@ -208,19 +197,20 @@ function PokeGacha() {
             });
         }, 100);
 
+        // 5. Finaliza
         setTimeout(() => {
             setIsSpinning(false);
-            setWonPokemon(savedItem);
+            setWonPokemon(winnerItemFull);
             
-            // Adiciona ao Inventário
-            setMyCollection(prev => [...prev, savedItem]);
+            // Salva Inventário
+            const updatedCollection = [...myCollection, winnerItemFull];
+            setMyCollection(updatedCollection);
+            saveToLocal('poke_collection', updatedCollection);
             
-            // Adiciona ao Histórico da Pokédex (Sem duplicatas) e salva no LocalStorage
-            setPokedexHistory(prevHistory => {
-                const newHistory = [...new Set([...prevHistory, savedItem.pokedexId])];
-                localStorage.setItem('pokedex_history', JSON.stringify(newHistory));
-                return newHistory;
-            });
+            // Salva Histórico da Pokedex
+            const updatedHistory = [...new Set([...pokedexHistory, winnerItemFull.pokedexId])];
+            setPokedexHistory(updatedHistory);
+            saveToLocal('pokedex_history', updatedHistory);
 
             setIsLoading(false);
             setRouletteItems([]);
@@ -228,7 +218,6 @@ function PokeGacha() {
         }, 6500);
     };
 
-    // Prepara os dados para o componente Pokedex (transforma lista de IDs em objetos compatíveis)
     const pokedexData = pokedexHistory.map(id => ({ pokedexId: id }));
 
     return (
@@ -302,7 +291,12 @@ function PokeGacha() {
                 }} 
             />
             
-            <Inventory collection={myCollection} sellMode={sellMode} onToggleSell={() => setSellMode(!sellMode)} onSell={handleSell} />
+            <Inventory 
+                collection={myCollection} 
+                sellMode={sellMode} 
+                onToggleSell={() => setSellMode(!sellMode)} 
+                onSell={handleSell} 
+            />
 
             {showPokedex && <Pokedex myCollection={pokedexData} onClose={() => setShowPokedex(false)} />}
         </div>
