@@ -267,62 +267,87 @@
 @keyframes tremer { 0% {transform: rotate(-2deg);} 50% {transform: rotate(2deg);} 100% {transform: rotate(-2deg);} }
 @keyframes aparecer { from {opacity: 0; transform: scale(0.5);} to {opacity: 1; transform: scale(1);} }
 
-@media screen and (max-height: 800px), screen and (max-width: 1400px) {
+/* --- AJUSTES AGRESSIVOS PARA NOTEBOOKS (Telas Baixas) --- */
+@media screen and (max-height: 800px) {
     
-    /* 1. Diminuir o Cabeçalho */
+    /* 1. Header Super Compacto */
     .game-header {
-        padding: 10px 20px;
-        margin-bottom: 10px;
+        padding: 5px 15px; /* Quase sem borda */
+        margin-bottom: 5px; /* Cola no topo */
     }
     .brand-title {
-        font-size: 1.5rem; /* Título menor */
+        font-size: 1.2rem; /* Texto menor */
     }
     .stat-item {
-        font-size: 1rem;
-        padding: 8px 15px;
+        padding: 5px 10px;
+        font-size: 0.9rem;
+    }
+    .action-buttons button {
+        padding: 5px 10px;
+        font-size: 0.8rem;
     }
 
-    /* 2. Diminuir a Pokébola e o Botão de Abrir */
+    /* 2. Área do Palco (Pokébola/Roleta) */
+    .main-stage {
+        min-height: auto; /* Remove altura mínima fixa se tiver */
+        margin-bottom: 5px;
+    }
+
+    /* 3. Pokébola Pequena */
     .ball-image {
-        width: 120px; /* Era maior antes */
+        width: 80px; /* Bem menor (era 120/150) */
         height: auto;
     }
+
+    /* 4. Botão de Abrir */
     .cyber-button {
-        padding: 12px 40px;
-        font-size: 1rem;
-        margin-top: 10px;
+        padding: 8px 30px; /* Mais fino */
+        font-size: 0.9rem;
+        margin-top: 5px;
     }
 
-    /* 3. Arrumar o Texto de Probabilidades (que estava vazando) */
+    /* 5. Probabilidades (O vilão da sobreposição) */
     .probs-info {
         font-size: 0.7rem;
         margin-top: 5px;
-        margin-bottom: 15px; /* Empurra os botões de baixo para longe */
+        margin-bottom: 15px; /* Força espaço embaixo */
+        line-height: 1;
     }
 
-    /* 4. Diminuir os Botões de Escolha de Caixa */
+    /* 6. Seletores de Caixa */
     .case-selector {
-        gap: 10px;
-        margin-top: 10px;
+        margin-top: 0;
+        margin-bottom: 10px;
+        gap: 5px;
     }
     .case-btn {
-        min-width: 140px;
-        padding: 10px;
+        padding: 8px;
+        min-width: 100px; /* Mais estreito */
     }
-    .case-name {
-        font-size: 1rem;
-    }
-    .case-price {
-        font-size: 0.9rem;
-    }
+    .case-name { font-size: 0.9rem; }
+    .case-price { font-size: 0.8rem; }
 
-    /* 5. Ajustar a grade do inventário para caber mais itens */
+    /* 7. Inventário com Scroll */
     .inventory-section {
-        margin-top: 10px;
-        padding-top: 10px;
+        margin-top: 0;
+        padding-top: 5px;
+        flex: 1; /* Ocupa o resto do espaço */
+        overflow: hidden; /* Evita que a página toda role */
+    }
+    .inventory-header {
+        margin-bottom: 5px;
+    }
+    .inventory-title {
+        font-size: 1rem;
+        margin: 0;
+    }
+    .inventory-grid {
+        max-height: 120px; /* Altura fixa máxima */
+        overflow-y: auto;  /* Cria barra de rolagem só aqui se lotar */
+        padding-bottom: 10px;
     }
     .inventory-slot {
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
     }
 }
