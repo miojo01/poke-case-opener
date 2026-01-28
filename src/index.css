@@ -1,0 +1,22 @@
+
+/* 1. Remove margens de TUDO no navegador */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Garante que o tamanho dos elementos seja calculado corretamente */
+}
+
+/* 2. Garante que o corpo do site ocupe 100% da tela e tenha fundo escuro */
+html, body {
+    width: 100%;
+    height: 100%;
+    background-color: #0f0f13; /* A mesma cor escura do seu app */
+    overflow-x: hidden; /* Evita barra de rolagem horizontal desnecessária */
+    font-family: 'Inter', sans-serif; /* Fonte padrão de fallback */
+}
+
+/* 3. Garante que o React (div #root) também ocupe tudo */
+#root {
+    width: 100%;
+    height: 100%;
+}

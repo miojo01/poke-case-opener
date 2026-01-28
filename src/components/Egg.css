@@ -1,0 +1,75 @@
+.egg-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.ball-wrapper {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    
+    /* Um brilho sutil atrás da bola */
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+}
+
+.ball-wrapper:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 30px rgba(255, 204, 0, 0.6));
+}
+
+.ball-image {
+    width: 100%;
+    height: 100%;
+    /* Garante que a pixel art fique nítida e não borrada */
+    image-rendering: pixelated; 
+}
+
+/* Animação de tremer mantida */
+.shake-pro {
+    animation: shake-pro 0.8s infinite cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake-pro {
+    10%, 90% { transform: translate3d(-1px, 0, 0) rotate(-5deg); }
+    20%, 80% { transform: translate3d(2px, 0, 0) rotate(5deg); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0) rotate(-5deg); }
+    40%, 60% { transform: translate3d(4px, 0, 0) rotate(5deg); }
+}
+
+/* Botão Principal */
+.cyber-button {
+    padding: 12px 40px;
+    background: #ffcc00;
+    color: #000;
+    border: none;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+}
+
+.cyber-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px #ffcc00;
+}
+
+.cyber-button:disabled {
+    background: #333;
+    color: #555;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+.ball-image.loading-brightness {
+    filter: brightness(1.2);
+}
